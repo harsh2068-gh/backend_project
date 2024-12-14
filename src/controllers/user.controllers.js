@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrors.js";
 import { User } from "../models/users.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
     // get user details from frontend
@@ -23,7 +24,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required!")
     }
 
-    const userExists = User.findOne({
+    const userExists = await User.findOne({
         $or: [{ username }, { email }]
     })
     if(userExists){
@@ -44,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.create({
-        username: username.toLowercase(),
+        username: username.toLowerCase(),
         email,
         fullName,
         password,
@@ -61,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500,"Something went wrong while registering the user")
     }
 
-    return res.statusCode(201).json(
+    return res.status(201).json(
         new ApiResponse(201,userCreated,"User registered successfully")
     )
 })
