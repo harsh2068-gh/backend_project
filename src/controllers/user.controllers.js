@@ -27,20 +27,26 @@ const registerUser = asyncHandler(async (req, res) => {
     const userExists = await User.findOne({
         $or: [{ username }, { email }]
     })
-    if(userExists){
+    if (userExists) {
         throw new ApiError(409, "User already exists")
     }
+    // console.log(req.files)
     const avatarLocalPath = req.files?.avatar[0]?.path
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
 
-    if(!avatarLocalPath){
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path
+    let coverImageLocalPath
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
+
+    if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar image file LocalPath not found")
     }
 
     const avatarUpload = await uploadOnCloudinary(avatarLocalPath)
     const coverImageUpload = await uploadOnCloudinary(coverImageLocalPath)
 
-    if(!avatarUpload){
+    if (!avatarUpload) {
         throw new ApiError(400, "Avatar image not uploaded on cloud")
     }
 
@@ -58,12 +64,12 @@ const registerUser = asyncHandler(async (req, res) => {
         "-password -refreshToken"
     )
 
-    if(!userCreated){
-        throw new ApiError(500,"Something went wrong while registering the user")
+    if (!userCreated) {
+        throw new ApiError(500, "Something went wrong while registering the user")
     }
 
     return res.status(201).json(
-        new ApiResponse(201,userCreated,"User registered successfully")
+        new ApiResponse(201, userCreated, "User registered successfully")
     )
 })
 
