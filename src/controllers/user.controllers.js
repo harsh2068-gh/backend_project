@@ -15,7 +15,7 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
 
         return { accessToken, refreshToken }
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating access and refresh token")
+        throw new ApiError(500, error?.message || "Something went wrong while generating access and refresh token")
     }
 }
 
@@ -105,7 +105,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     //find the user
-    const user = User.findOne({
+    const user = await User.findOne({
         $or: [{ username }, { email }]
     })
     if (!user) {
