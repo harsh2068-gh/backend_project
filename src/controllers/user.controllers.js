@@ -49,7 +49,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User already exists")
     }
     // console.log(req.files)
-    const avatarLocalPath = req.files?.avatar[0]?.path
+    // const avatarLocalPath = req.files?.avatar[0]?.path   //will throw error(if not uploaded)as the avatar[0] will never exist
+    let avatarLocalPath
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarLocalPath = req.files.avatar[0].path
+    }
 
     // const coverImageLocalPath = req.files?.coverImage[0]?.path
     let coverImageLocalPath
@@ -78,7 +82,7 @@ const registerUser = asyncHandler(async (req, res) => {
     })
 
     //checking and removing of password and refreshToken both in one step
-    const userCreated = await User.findById(user._id).select(
+    const userCreated = await User.findById(user?._id).select(
         "-password -refreshToken"
     )
 
