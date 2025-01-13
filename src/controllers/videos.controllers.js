@@ -44,8 +44,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const fetchedVideos = await Video.aggregatePaginate(Video.aggregate(pipeline), options)
     // console.log(fetchedVideos?.length)   //undefined as object doesnt have the length property
     // if(!fetchedVideos?.length){     //aggregate.Paginate returns an object 
-    if(!fetchedVideos){
-        throw new ApiError(500,"something went wrong while fetching the requested videos")
+    if (!fetchedVideos) {
+        throw new ApiError(500, "something went wrong while fetching the requested videos")
     }
 
     return res
@@ -121,4 +121,17 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 })
 
-export { getAllVideos, publishAVideo }
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    const video = await Video.findById(videoId)
+    if (!video) {
+        throw new ApiError(400, "Video does not exist")
+    }
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, video, "Video fetched successfully")
+        )
+})
+
+export { getAllVideos, publishAVideo, getVideoById }
